@@ -50,7 +50,7 @@ async def create_group(
     description="Retrieves a paginated list of all groups in the system. Requires admin authentication.",
 )
 async def get_all_groups(
-    offset: int = None, limit: int = None, db: AsyncSession = Depends(get_db), _: AdminDetails = Depends(get_current)
+    offset: int = None, limit: int = None, db: AsyncSession = Depends(get_db), admin: AdminDetails = Depends(get_current)
 ):
     """
     Retrieve a list of all groups with optional pagination.
@@ -70,7 +70,7 @@ async def get_all_groups(
     Raises:
         401: Unauthorized - If not authenticated
     """
-    return await group_operator.get_all_groups(db, offset, limit)
+    return await group_operator.get_all_groups(db, offset, limit, admin)
 
 
 @router.get(

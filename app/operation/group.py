@@ -28,9 +28,15 @@ class GroupOperation(BaseOperation):
         return group
 
     async def get_all_groups(
-        self, db: AsyncSession, offset: int | None = None, limit: int | None = None
+        self, db: AsyncSession, offset: int | None = None, limit: int | None = None, admin: Admin = None
     ) -> GroupsResponse:
         db_groups, count = await get_group(db, offset, limit)
+        
+        # If the admin is not sudo, filter groups based on group names containing the admin's username
+        if not admin.is_sudo:
+            filtered_groups = [group for group in db_groups if admin.username in group.name]
+            return GroupsResponse(groups=filtered_groups, total=len(filtered_groups))
+            
         return GroupsResponse(groups=db_groups, total=count)
 
     async def modify_group(self, db: AsyncSession, group_id: int, modified_group: GroupModify, admin: Admin) -> Group:
